@@ -1,4 +1,4 @@
-const port = 4000;
+// const port = 4000;
 const dotenv=require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -9,6 +9,7 @@ const path = require('path');
 const cors = require('cors');
 app.use(express.json());
 app.use(cors());
+const port=process.env.PORT;
 // db connection with mongodb
 // mongoose.connect(process.env.CONNECTION_DB_URL);
 const connectDb=async ()=>{
