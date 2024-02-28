@@ -4,21 +4,21 @@ import remove_icon from '../../assets/cross_icon.png'
 const ListProduct = () => {
   const [allproducts, setProducts] = useState([]);
   const fetchinfo = async () => {
-    await fetch('http://192.168.120.221:4000/allproducts').then((res) => res.json()).then((data) => { setProducts(data) });
+    await fetch('http://localhost:4000/allproducts').then((res) => res.json()).then((data) => { setProducts(data) });
 
   }
   useEffect(() => {
     fetchinfo()
   }, []);
-  const remove_product=async (id)=>{
+  const remove_product = async (id) => {
     console.log(id);
-    await fetch('http://192.168.120.221:4000/removeproduct',{
-      method:'POST',
-      headers:{
-        Accept:'application/json',
-        'Content-Type':'application/json'
+    await fetch('http://localhost:4000/removeproduct', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
       },
-      body:JSON.stringify({id:id})
+      body: JSON.stringify({ id: id })
     })
     await fetchinfo();
   }
@@ -37,18 +37,18 @@ const ListProduct = () => {
         <hr />
         {allproducts.map((product, i) => {
           return <>
-          <div key={i} className="listproduct-format-main listproduct-format">
-            <img src={product.image} className='listproduct-product-image' alt="" />
-            <p>{product.name}</p>
-            <p>${product.old_price}</p>
-            <p>${product.new_price}</p>
-            <p>{product.category}</p>
-            <img className='listproduct-remove-icon' src={remove_icon} onClick={()=>{
-              remove_product(product.id);
-            }} alt="" />
+            <div key={i} className="listproduct-format-main listproduct-format">
+              <img src={product.image} className='listproduct-product-image' alt="" />
+              <p>{product.name}</p>
+              <p>${product.old_price}</p>
+              <p>${product.new_price}</p>
+              <p>{product.category}</p>
+              <img className='listproduct-remove-icon' src={remove_icon} onClick={() => {
+                remove_product(product.id);
+              }} alt="" />
 
-          </div>
-          <hr />
+            </div>
+            <hr />
           </>
         })}
       </div>

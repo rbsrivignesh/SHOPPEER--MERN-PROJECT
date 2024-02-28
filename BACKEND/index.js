@@ -1,4 +1,5 @@
 const port = 4000;
+const dotenv=require('dotenv').config();
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
@@ -9,8 +10,18 @@ const cors = require('cors');
 app.use(express.json());
 app.use(cors());
 // db connection with mongodb
-mongoose.connect("mongodb+srv://rbsvcode:rbsvcode@cluster0.cm0g4my.mongodb.net/e-commerce");
-
+// mongoose.connect(process.env.CONNECTION_DB_URL);
+const connectDb=async ()=>{
+    try{
+        const connect=await mongoose.connect(process.env.CONNECTION_DB_URL);  
+        console.log("database is connected ",connect.connection.host,connect.connection.name);
+    }
+    catch(err){
+        console.log(err);
+        process.exit(1);
+    }
+}
+connectDb();
 
 //api creation
 //image storage engine
@@ -25,7 +36,7 @@ const upload = multer({ storage: storage });
 app.post("/upload", upload.single('product'), (req, res) => {
     res.json({
         success: 1,
-        image_url: `http://192.168.120.221:${port}/images/${req.file.filename}`
+        image_url: `http://localhost:${port}/images/${req.file.filename}`
     })
 })
 
@@ -202,65 +213,65 @@ app.get("/popularinwomen", async (req, res) => {
     res.send(popularinwomen);
 })
 
-const fetchUser=async(req,res,next)=>{
-    const token=req.header('auth-token');
-    if(!token){
-        res.status(401).send({errors:"not authenticated"});
+const fetchUser = async (req, res, next) => {
+    const token = req.header('auth-token');
+    if (!token) {
+        res.status(401).send({ errors: "not authenticated" });
     }
-    else{
-        try{
-            const data= jwt.verify(token,'secret_ecom');
-            req.user=data.users;
-           
+    else {
+        try {
+            const data = jwt.verify(token, 'secret_ecom');
+            req.user = data.users;
+
             next();
         }
-        catch(error){
-            res.status(401).send({errors:"token expired"});
-            
+        catch (error) {
+            res.status(401).send({ errors: "token expired" });
+
         }
     }
 }
-app.post("/addtocart", fetchUser,async(req, res) => {
-  
-    const user=await Users.findOne({_id:req.user.id});
-    user.cartData[req.body.id]+=1;
-    await Users.findOneAndUpdate({_id:req.user.id},{cartData:user.cartData});
-    res.send("Added");
-  
-})
-app.post("/removefromcart", fetchUser,async(req, res) => {
-  
-    const user=await Users.findOne({_id:req.user.id});
-    if(user.cartData[req.body.id] >0)
+app.post("/addtocart", fetchUser, async (req, res) => {
 
-    user.cartData[req.body.id]-=1;
-    await Users.findOneAndUpdate({_id:req.user.id},{cartData:user.cartData});
-    res.send("removed");
-  
+    const user = await Users.findOne({ _id: req.user.id });
+    user.cartData[req.body.id] += 1;
+    await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: user.cartData });
+    res.send("Added");
+
 })
-app.post("/getcart",fetchUser,async(req,res)=>{
-    let userData=await Users.findOne({_id:req.user.id});
+app.post("/removefromcart", fetchUser, async (req, res) => {
+
+    const user = await Users.findOne({ _id: req.user.id });
+    if (user.cartData[req.body.id] > 0)
+
+        user.cartData[req.body.id] -= 1;
+    await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: user.cartData });
+    res.send("removed");
+
+})
+app.post("/getcart", fetchUser, async (req, res) => {
+    let userData = await Users.findOne({ _id: req.user.id });
     res.json(userData.cartData);
 })
-app.post("/relatedproducts", async(req, res) => {
+app.post("/relatedproducts", async (req, res) => {
     // console.log(req.body);
     let products = await Product.find({ category: req.body.category });
-    let relatedproducts=products.slice(0,4);
+    let relatedproducts = products.slice(0, 4);
 
     res.json(relatedproducts);
-   
+
 })
-app.get('/*', function(req, res) {
+app.get('/*', function (req, res) {
     console.log(path.join(__dirname, './error.html'));
-    res.sendFile(path.join(__dirname, './error.html'), function(err) {
-      if (err) {
-        res.status(500).send(err)
-      }
+    res.sendFile(path.join(__dirname, './error.html'), function (err) {
+        if (err) {
+            res.status(500).send(err)
+        }
     })
-  })
-app.listen(port, (error) => {
+})
+app.listen(process.env.PORT, (error) => {
     if (!error) {
-        console.log("server running on port " + port);
+        console.log("server running on port " + process.env.PORT);
 
     }
     else {

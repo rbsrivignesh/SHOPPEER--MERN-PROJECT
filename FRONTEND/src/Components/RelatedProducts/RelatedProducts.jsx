@@ -4,12 +4,12 @@ import './RelatedProducts.css'
 import Item from '../Item/Item'
 // import { set } from 'mongoose'
 const RelatedProducts = (props) => {
-  const {product} = props
-  
+  const { product } = props
+
 
   const [data_product, setdataproduct] = useState([]);
   useEffect(() => {
-    fetch("http://192.168.120.221:4000/relatedproducts", {
+    fetch("http://localhost:4000/relatedproducts", {
       method: 'POST',
       headers: {
         Accept: 'application/json',
